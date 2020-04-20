@@ -40,8 +40,18 @@ public class AudioLED {
             final float[] realPart = transformed[0];
             final float[] imaginaryPart = transformed[1];
             final double[] magnitudes = toMagnitudes(realPart, imaginaryPart);
-
+            
+            double max = magnitudes[0];
+            for(int i=0;i<magnitudes.length;i++)
+            {
+                //System.out.println("magnitudes[" + i + "]: " + magnitudes[i]);
+                
+                if (magnitudes[i] > max) {
+                    max = magnitudes[i];
+                }
+            }
             // do something with magnitudes...
+            System.out.println("max: " + max);
         }
     }
 
