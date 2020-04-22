@@ -1,6 +1,12 @@
 package pl.com.slaw.jspect;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import javax.swing.*;
 
 /*
@@ -30,6 +36,7 @@ import javax.swing.*;
 
 public class Rta_canvas extends JPanel implements Runnable
 {
+        final int mult = 16;
 	float[] data = new float[8192];
 	float[] spec = new float[8192];
 	FastFourierTransform fft = new FastFourierTransform();
@@ -92,7 +99,7 @@ public class Rta_canvas extends JPanel implements Runnable
 		g.drawLine(30,343,660,343);
 		
 		// y scale multiplier/divisor, size adjuster
-		int mult = 16;
+		
 		
 		// draw frequency information (slow!)
 		g.fillRect(30,340-(int)spec[2]/mult,20,3); //16Hz
@@ -160,6 +167,9 @@ public class Rta_canvas extends JPanel implements Runnable
 
 		//draw a level-meter, the average of all the amplitudes
 		g.drawString(Integer.toString(levelSpec()),40,40);
+                
+                
+                
 
 		
 		
@@ -184,10 +194,166 @@ public class Rta_canvas extends JPanel implements Runnable
 	 * 	display
 	 * 
 	 ****************************************/ 
-	public void sendData(float[] b, int len){
+	public void sendData(float[] b, int len) throws IOException
+        {
 		data = b;
 		spec = fft.fftMag(b);
 		repaint();
+                
+                if(levelSpec() > 5)
+                    saveToFile("test");
 	}
+        
+        
+        private void saveToFile(String name) throws FileNotFoundException, IOException
+        {
+            BufferedWriter out = new BufferedWriter
+            (
+                new OutputStreamWriter(
+                    new FileOutputStream("file.txt", true), // true to append
+                    StandardCharsets.UTF_8                  // Set encoding
+                )
+            );
+            
+            StringBuilder sb = new StringBuilder(); 
+            char comma = ',';
+            
+            sb.append(spec[2]/mult);
+            sb.append(comma);
+            sb.append(spec[3]/mult);
+            sb.append(comma);
+            sb.append(spec[4]/mult);
+            sb.append(comma);
+            sb.append(spec[5]/mult);
+            sb.append(comma);
+            sb.append(spec[6]/mult);
+            sb.append(comma);
+            sb.append(spec[7]/mult);
+            sb.append(comma);
+            sb.append(spec[8]/mult);
+            sb.append(comma);
+            sb.append(spec[9]/mult);            
+            sb.append(comma);
+            sb.append(spec[10]/mult);
+            sb.append(comma);
+            sb.append(spec[11]/mult);
+            sb.append(comma);
+            sb.append(spec[12]/mult);
+            sb.append(comma);
+            sb.append(spec[14]/mult);
+            sb.append(comma);
+            sb.append(spec[16]/mult);
+            sb.append(comma);
+            sb.append(spec[18]/mult);
+            sb.append(comma);
+            sb.append(spec[20]/mult);
+            sb.append(comma);
+            sb.append(spec[24]/mult);
+            sb.append(comma);
+            sb.append(spec[26]/mult);
+            sb.append(comma);
+            sb.append(spec[30]/mult);
+            sb.append(comma);
+            sb.append(spec[2]/mult);
+            sb.append(comma);
+            sb.append(spec[2]/mult);
+            sb.append(comma);
+            sb.append(spec[2]/mult);
+            sb.append(comma);
+            sb.append(spec[2]/mult);
+            sb.append(comma);
+            sb.append(spec[34]/mult);
+            sb.append(comma);
+		sb.append(spec[38]/mult);
+                sb.append(comma);
+		sb.append(spec[42]/mult);
+                sb.append(comma);
+		sb.append(spec[48]/mult); //256Hz
+                sb.append(comma);
+		sb.append(spec[56]/mult);
+                sb.append(comma);
+		sb.append(spec[64]/mult);
+                sb.append(comma);
+		sb.append(spec[72]/mult);
+                sb.append(comma);
+		sb.append(spec[80]/mult);
+                sb.append(comma);
+		sb.append(spec[88]/mult);
+                sb.append(comma);
+		sb.append(spec[96]/mult); //512Hz
+                sb.append(comma);
+		sb.append(spec[112]/mult);
+                sb.append(comma);
+		sb.append(spec[128]/mult);
+                sb.append(comma);
+		sb.append(spec[144]/mult);
+                sb.append(comma);
+		sb.append(spec[160]/mult);
+                sb.append(comma);
+		sb.append(spec[176]/mult);
+                sb.append(comma);
+		sb.append(spec[192]/mult); //1kHz
+                sb.append(comma);
+		sb.append(spec[224]/mult);
+                sb.append(comma);
+		sb.append(spec[256]/mult);
+                sb.append(comma);
+		sb.append(spec[288]/mult);
+                sb.append(comma);
+		sb.append(spec[320]/mult);
+                sb.append(comma);
+		sb.append(spec[352]/mult); 
+                sb.append(comma);
+		sb.append(spec[382]/mult); //2k
+                sb.append(comma);
+		sb.append(spec[446]/mult);
+                sb.append(comma);
+		sb.append(spec[510]/mult);
+                sb.append(comma);
+		sb.append(spec[574]/mult);
+                sb.append(comma);
+		sb.append(spec[638]/mult);
+                sb.append(comma);
+		sb.append(spec[702]/mult);
+                sb.append(comma);
+		sb.append(spec[766]/mult); //4k
+                sb.append(comma);
+		sb.append(spec[894]/mult);
+                sb.append(comma);
+		sb.append(spec[1022]/mult);
+                sb.append(comma);
+		sb.append(spec[1150]/mult);
+                sb.append(comma);
+		sb.append(spec[1278]/mult);
+                sb.append(comma);
+		sb.append(spec[1406]/mult);
+                sb.append(comma);
+		sb.append(spec[1534]/mult); //8k
+                sb.append(comma);
+		sb.append(spec[1790]/mult);
+                sb.append(comma);
+		sb.append(spec[2046]/mult);
+                sb.append(comma);
+		sb.append(spec[2302]/mult);
+                sb.append(comma);
+		sb.append(spec[2558]/mult);
+                sb.append(comma);
+		sb.append(spec[2814]/mult);
+                sb.append(comma);
+		sb.append(spec[3070]/mult); //16k
+                sb.append(comma);
+		sb.append(spec[3582]/mult);
+                sb.append(comma);
+		sb.append(spec[4094]/mult);
+                sb.append(comma);
+                sb.append(name);
+                sb.append("\n");
+                
+            
+            
+            
+            out.write(sb.toString());
+            out.close();
+        }
 
 }
