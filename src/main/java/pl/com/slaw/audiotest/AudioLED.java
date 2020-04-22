@@ -4,55 +4,67 @@
  * and open the template in the editor.
  */
 package pl.com.slaw.audiotest;
-import com.tagtraum.jipes.audio.FFT;
-import com.tagtraum.jipes.math.FFTFactory;
-import com.tagtraum.jipes.math.Transform;
 import javax.sound.sampled.*;
+import pl.com.slaw.jspect.FastFourierTransform;
 /**
  *
  * @author slaw
  */
-public class AudioLED {
+public class AudioLED 
+{
 
     private static final float NORMALIZATION_FACTOR_2_BYTES = Short.MAX_VALUE + 1.0f;
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception 
+    {        
+        
         // use only 1 channel, to make this easier
         final AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 1, 2, 44100, false);
         final DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-        final TargetDataLine targetLine = (TargetDataLine) AudioSystem.getLine(info);
-        targetLine.open();
-        targetLine.start();
-        final AudioInputStream audioStream = new AudioInputStream(targetLine);
+        final TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
+        final int mult = 16;
+        final FastFourierTransform fft = new FastFourierTransform();
+        
+        line.open();
+        line.start();
+        
+        
+        final AudioInputStream audioStream = new AudioInputStream(line);
 
-        final byte[] buf = new byte[256]; // <--- increase this for higher frequency resolution
+        final byte[] buf = new byte[16384]; // <--- increase this for higher frequency resolution
         final int numberOfSamples = buf.length / format.getFrameSize();
+                        
         
-        final Transform fft = FFTFactory.getInstance().create(numberOfSamples);
-        
-        
-        while (true) {
-            // in real impl, don't just ignore how many bytes you read
-            audioStream.read(buf);
-            // the stream represents each sample as two bytes -> decode
-            final float[] samples = decode(buf, format);
-            final float[][] transformed = fft.transform(samples);
-            final float[] realPart = transformed[0];
-            final float[] imaginaryPart = transformed[1];
-            final double[] magnitudes = toMagnitudes(realPart, imaginaryPart);
+        while (true) {            
+            int num = audioStream.read(buf, 0,16384);            
+            float[] data = new float[8192];
+            float[] spec = new float[8192];
             
-            double max = magnitudes[0];
-            for(int i=0;i<magnitudes.length;i++)
+            for(int i=0;i<data.length;i++)
             {
-                //System.out.println("magnitudes[" + i + "]: " + magnitudes[i]);
+                data[i] = buf[i*2+1] & (buf[i*2] << 8);
+                                  
+                spec = fft.fftMag(data);
+                int level = levelSpec(spec); 
                 
-                if (magnitudes[i] > max) {
-                    max = magnitudes[i];
-                }
+                //System.out.printf("level: " + level);                                
             }
-            // do something with magnitudes...
-            System.out.println("max: " + max);
+            
         }
+        
+        
+    }
+    
+    
+    
+    public static int levelSpec(float[] spec){
+        int avg=0;
+        
+        for(int i=0;i<spec.length;i++)
+        {
+                avg += (int)spec[i];
+        }
+        return avg/8192;
     }
 
     private static float[] decode(final byte[] buf, final AudioFormat format) {
