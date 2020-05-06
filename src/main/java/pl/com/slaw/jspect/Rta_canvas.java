@@ -200,14 +200,14 @@ public class Rta_canvas extends JPanel implements Runnable
 		spec = fft.fftMag(b);
 		repaint();
                 
-                if(levelSpec() > 10)
-                    saveToFile("Soprano", true);
+                if(levelSpec() > 80)
+                    saveToFile("tenor", true);
 	}
         
         
         private void saveToFile(String name, boolean test) throws FileNotFoundException, IOException
         {
-            String filename = "data/test-soprano.txt";
+            String filename = "data/test-" + name + ".txt";
             
             if(!test)
                 filename = "data/dbvoice.arff"; 
